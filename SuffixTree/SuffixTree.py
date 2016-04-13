@@ -9,7 +9,7 @@ class SuffixTree:
 
     def construct(self):
         for i in range(len(self.x)): # insert suffix x[i..n-1] for i = 0...n-1
-            self.insert(i, i, self.root) 
+            self.insert(i, i + 1, self.root) 
 
     def insert(self, i, pos, node):
         first_ch = self.x[i]
@@ -41,19 +41,24 @@ class Node:
 
 
 def main():
-   # if not len(sys.argv) == 2:
-   #     sys.exit("Usage: ./search file pattern")
+    if not len(sys.argv) == 3:
+        sys.exit("Usage: ./search file pattern")
 
-   # file = open(sys.argv[0], "r")
-   # str = file.read()
+    file = open(sys.argv[1], "r")
+    x = file.read()
 
-   # pattern = sys.argv[1]
+    pattern = sys.argv[2]
 
-    x = "AABABABAABBAB"
-    pattern = "A"
     T = SuffixTree(x + "$")
-    exact_match(T, pattern)
-    
+    positions = exact_match(T, pattern)
+    if not positions:
+        print("No matches found")
+    else:
+        print("Matches found: ", end="")
+        for i in sorted(positions):
+            print(i, end=" ")
+    print()
+
 def exact_match(T, pattern):
     return __exact_match(T.root, T.x, pattern)
 
@@ -62,27 +67,28 @@ def __exact_match(root, x, pattern):
     child = root.children.get(first_ch)
     
     if child == None:
-        return False     
+        return []     
 
     j = 1
     for ch in pattern[1:]:
         if child.index[0] + j > child.index[1]:
             return __exact_match(child, x, pattern[j:])
         if not ch == x[child.index[0] + j]:
-            return False
+            return []
         j = j + 1
     
-    bfs_print_match(child)
-    return True 
+    return bfs_match(child)
       
-def bfs_print_match(root):
+def bfs_match(root):
+    positions = []
     queue = deque([root])
     while queue:
         node = queue.pop()
-        if node.index[1] == 13: # fix this
-            print("Match at position: ", node.pos)
-        for ch in sorted(node.children):
+        if not node.children:
+            positions.append(node.pos)
+        for ch in node.children:
             queue.appendleft(node.children[ch])
+    return positions
 
 def bfs_print_tree(root):
     queue = deque([root])
