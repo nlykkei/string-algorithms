@@ -1,5 +1,6 @@
 from collections import deque
 import sys
+import time
 
 class SuffixTree:
     def __init__(self, x): 
@@ -38,8 +39,6 @@ class Node:
         self.pos = pos
         self.children = {}      
     
-
-
 def main():
     if not len(sys.argv) == 3:
         sys.exit("Usage: ./search file pattern")
@@ -49,8 +48,15 @@ def main():
 
     pattern = sys.argv[2]
 
-    T = SuffixTree(x + "$")
-    positions = exact_match(T, pattern)
+    t = time.process_time()
+    T = SuffixTree(x + "$") # construct suffix tree
+    elapsed_time = time.process_time() - t
+    print("Suffix tree construction:", elapsed_time, "seconds.")
+
+    t = time.process_time()
+    positions = exact_match(T, pattern) # exact match for pattern
+    elapsed_time = time.process_time() - t
+    print("Exact match:", elapsed_time, "seconds.")
     if not positions:
         print("No matches found")
     else:
@@ -62,7 +68,7 @@ def main():
 def exact_match(T, pattern):
     return __exact_match(T.root, T.x, pattern)
 
-def __exact_match(root, x, pattern):
+def __exact_match(root, x, pattern): # exact match algorithm
     first_ch = pattern[0] 
     child = root.children.get(first_ch)
     
