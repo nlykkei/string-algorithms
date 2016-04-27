@@ -1,44 +1,51 @@
 from collections import deque
 import sys
 import time
+from tandem_repeats import tandem_repeats
+from exact_match import exact_match
+from utils import gen_rand_str
 
-class SuffixTree:
+class suffix_tree:
     def __init__(self, x): 
         self.x = x # client is assumed to append special char to end of x
-        self.root = Node(None, None) # root of the suffix tree
-        self.construct()
+        self.root = suffix_node(None, None, None, None) # root of the suffix tree
+        self.naive_construct()
 
-    def construct(self):
+    def naive_construct(self): # O(n^2) time bound construction
         for i in range(len(self.x)): # insert suffix x[i..n-1] for i = 0...n-1
-            self.insert(i, i + 1, self.root) 
+            self.insert(i, i, self.root) 
 
     def insert(self, i, pos, node):
         first_ch = self.x[i]
         child = node.children.get(first_ch) # get child of current node with label starting with first_ch
-        if child == None: # if no such child exist, insert new child of current node with label x[i..n-1]
-            new_leaf = Node((i, len(self.x) - 1), pos)
+        if child == None: # if no such child exist, insert new child of current node with label
+                          # x[i..n-1]
+            new_leaf = suffix_node((i, len(self.x) - 1), pos, node, None)
             node.children[first_ch] = new_leaf # put child in dictionary with key first_ch
             return new_leaf
         j = 1 # offset into x[i..n-1] (x[i..n-1] and label of child match at first position)
         for ch in self.x[child.index[0] + 1:child.index[1] + 1]: # no suffix is a prefix of another, so i + j < n
             if not ch == self.x[i + j]: # mismatch: insert new node with children current node and child
-                new_leaf = Node((i + j, len(self.x) - 1), pos)
-                new_node = Node((child.index[0], child.index[0] + j - 1), pos)
+                new_node = suffix_node((child.index[0], child.index[0] + j - 1), pos , node, None)
+                new_leaf = suffix_node((i + j, len(self.x) - 1), pos, new_node, None)
                 new_node.children[ch] = child
                 new_node.children[self.x[i + j]] = new_leaf 
                 child.index = (child.index[0] + j, child.index[1])
+                child.parent = new_node
                 node.children[first_ch] = new_node # set new child for first_ch
                 return new_leaf
             else:
                 j = j + 1 # update index to next ch
         return self.insert(i + j, pos, child) # child's label exhausted: recursively call insert()
 
-class Node:
-     def __init__(self, index, pos):
-        self.index = index
-        self.pos = pos
-        self.children = {}      
-    
+class suffix_node:
+     def __init__(self, index, pos, parent, s):
+        self.index = index # characters on edge from parent to this node
+        self.pos = pos # starting position in x
+        self.children = {} # children of this node
+        self.parent = parent # parent of this node
+        self.suffix_link = s # suffix link
+
 def main():
     if not len(sys.argv) == 3:
         sys.exit("Usage: ./search file pattern")
@@ -48,62 +55,32 @@ def main():
 
     pattern = sys.argv[2]
 
+    print(gen_rand_str(100))
+
+    # time suffix tree construction
     t = time.process_time()
-    T = SuffixTree(x + "$") # construct suffix tree
+    T = suffix_tree(x + "$") # construct suffix tree
+
+    repeats = tandem_repeats(T)
+    print("Branching(", len(repeats[0]), "):", sorted(repeats[0], key = lambda x: x[0]))
+    print("Non-branching(", len(repeats[1]), "):", sorted(repeats[1], key = lambda x: x[0]))
+
     elapsed_time = time.process_time() - t
     print("Suffix tree construction:", elapsed_time, "seconds.")
 
+    # time exact match algorithm
     t = time.process_time()
     positions = exact_match(T, pattern) # exact match for pattern
     elapsed_time = time.process_time() - t
     print("Exact match:", elapsed_time, "seconds.")
+
     if not positions:
         print("No matches found")
     else:
         print("Matches found: ", end="")
         for i in sorted(positions):
-            print(i, end=" ")
+            print(i + 1, end=" ")
     print()
-
-def exact_match(T, pattern):
-    return __exact_match(T.root, T.x, pattern)
-
-def __exact_match(root, x, pattern): # exact match algorithm
-    first_ch = pattern[0] 
-    child = root.children.get(first_ch)
-    
-    if child == None:
-        return []     
-
-    j = 1
-    for ch in pattern[1:]:
-        if child.index[0] + j > child.index[1]:
-            return __exact_match(child, x, pattern[j:])
-        if not ch == x[child.index[0] + j]:
-            return []
-        j = j + 1
-    
-    return bfs_match(child)
-      
-def bfs_match(root):
-    positions = []
-    queue = deque([root])
-    while queue:
-        node = queue.pop()
-        if not node.children:
-            positions.append(node.pos)
-        for ch in node.children:
-            queue.appendleft(node.children[ch])
-    return positions
-
-def bfs_print_tree(root):
-    queue = deque([root])
-    while queue:
-        node = queue.pop()
-        print(node.index, "has children: ")
-        for ch in sorted(node.children):
-            print(ch, node.children[ch].children, node.children[ch].index)
-            queue.appendleft(node.children[ch])
 
 if __name__ == '__main__':
     main()
