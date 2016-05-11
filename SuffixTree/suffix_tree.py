@@ -1,7 +1,6 @@
 from collections import deque
 import sys
 import time
-from tandem_repeats import tandem_repeats
 from exact_match import exact_match
 from utils import gen_rand_str
 
@@ -60,12 +59,8 @@ def main():
     # time suffix tree construction
     t = time.process_time()
     T = suffix_tree(x + "$") # construct suffix tree
-
-    repeats = tandem_repeats(T)
-    print("Branching(", len(repeats[0]), "):", sorted(repeats[0], key = lambda x: x[0]))
-    print("Non-branching(", len(repeats[1]), "):", sorted(repeats[1], key = lambda x: x[0]))
-
     elapsed_time = time.process_time() - t
+
     print("Suffix tree construction:", elapsed_time, "seconds.")
 
     # time exact match algorithm

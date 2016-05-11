@@ -1,3 +1,5 @@
+from suffix_tree import *
+
 def tandem_repeats(T):
     map = depth_first_numbering(T)
     inv_map = {v : k for k, v in map.items()}
@@ -74,3 +76,26 @@ def __depth_first_numbering(root, i, map):
         if root.range[1] == None or root.range[1] < child.range[1]:
             root.range[1] = child.range[1] # max
     return i
+
+
+def main():
+    x = gen_rand_str(5000000)
+
+    #print(x)
+
+    T = suffix_tree(x + "$") # construct suffix tree
+
+    # time tandem repeat algorithm
+    t = time.process_time()
+    repeats = tandem_repeats(T)
+    elapsed_time = time.process_time() - t
+    
+    print("Tandem repeat algorithm:", elapsed_time, "seconds.")
+
+    #print("Branching(", len(repeats[0]), "):", sorted(repeats[0], key = lambda x: x[0]))
+    #print("Non-branching(", len(repeats[1]), "):", sorted(repeats[1], key = lambda x: x[0]))
+
+    print()
+
+if __name__ == '__main__':
+    main()
