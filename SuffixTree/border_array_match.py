@@ -1,5 +1,7 @@
 
-
+from utils import gen_rand_str
+import time
+import os
 
 def construct_border_array(x):
     border_array = [None for _ in range(len(x))] # border_array[i] is the length of the longest border of x[1..i]
@@ -25,11 +27,13 @@ def search_border_array(x, p):
     return matches
 
 def main():
-    x = "ABABABAABAAB"
-    border_array = construct_border_array(x)
-    print(border_array)
-    matches = search_border_array(x, "AA")
-    print(matches)
+       x = "A" * (10000 - 1) + "B" + "A" * (10000 - 1) + "B" + "A" * (10000 - 1) + "B"
+       p =  "A" * 10000
+       t = time.process_time()
+       matches = search_border_array(x, p)
+       elapsed_time = time.process_time() - t
+       print("time =", elapsed_time, flush=True)
+
 
 if __name__ == '__main__':
     main()

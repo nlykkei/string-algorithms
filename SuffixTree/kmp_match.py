@@ -1,5 +1,8 @@
 
 from border_array_match import construct_border_array
+from utils import gen_rand_str
+import time
+import os
 
 def search_kmp(x, p):
     m = len(p)
@@ -30,14 +33,15 @@ def match(i, j, m, x, p):
     return i, j
 
 def main():
-    matches = search_kmp("hejdigthejajiakeaikea", "ke")
-    print(matches)
+       x = "A" * (10000 - 1) + "B" + "A" * (10000 - 1) + "B" + "A" * (10000 - 1) + "B"
+       p =  "A" * 10000
+       t = time.process_time()
+       matches = search_kmp(x, p)
+       elapsed_time = time.process_time() - t
+       print("time =", elapsed_time, flush=True)
+
+
+
 
 if __name__ == "__main__":
     main()
-
-
-# if prefix of length h of p matches at index i, then p cannot match at j in [i,i+h]
-# unless p[1..h-(j-i)+1] (1) equals p[j-i..h] (2), i.e. p[1..h-(j-i)] is a border of p[1..h].
-# (1) After shifting the pattern (j-i) places to the right.
-# (2) The remainder of the pattern that matches at position i.

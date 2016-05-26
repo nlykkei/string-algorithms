@@ -1,7 +1,7 @@
 from collections import deque
 import sys
 import time
-from exact_match import exact_match
+from suffix_tree_match import exact_match
 from utils import gen_rand_str
 
 class suffix_tree:

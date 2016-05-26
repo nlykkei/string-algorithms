@@ -12,3 +12,10 @@ def bfs_print_tree(root):
         for ch in sorted(node.children):
             print(ch, node.children[ch].children, node.children[ch].index)
             queue.appendleft(node.children[ch])
+
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()

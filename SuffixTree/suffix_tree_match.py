@@ -1,3 +1,7 @@
+from suffix_tree import *
+from utils import gen_rand_str
+import time
+
 def exact_match(T, pattern):
     return __exact_match(T.root, T.x, pattern)
 
@@ -28,3 +32,28 @@ def bfs_match(root):
         for ch in node.children:
             queue.appendleft(node.children[ch])
     return positions
+
+def main():
+    x_len = 100000
+    p_len = 25
+    print("|x| =", x_len, "|p| =", p_len, flush=True)
+    x = gen_rand_str(x_len, chars="AB")
+    total = 0
+
+    t = time.process_time()
+    T = suffix_tree(x + "$")
+    elapsed_time = time.process_time() - t
+    total += elapsed_time
+    print("construct =", elapsed_time, "total =", total, flush=True)
+    
+    for i in range(10):
+        p = gen_rand_str(p_len, chars="AB")
+        t = time.process_time()
+        matches = exact_match(T, p)
+        elapsed_time = time.process_time() - t
+        total += elapsed_time
+        print("round =", elapsed_time, "total =", total, flush=True)
+
+
+if __name__ == '__main__':
+    main()
